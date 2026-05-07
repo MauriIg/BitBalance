@@ -16,7 +16,15 @@ const Estadisticas = () => {
   const { products } = useSelector((state) => state.product);
 
   const [ordenes, setOrdenes] = useState([]);
-  const [loading, setLoading] = useState(true); // 🔥 mejor que ready
+  const [loading, setLoading] = useState(true);
+
+  // 🔥 NUEVO
+  const [montoReinversion, setMontoReinversion] =
+    useState("");
+
+  const [reinversiones, setReinversiones] = useState(
+    []
+  );
 
   useEffect(() => {
     const obtenerOrdenes = async () => {
@@ -24,7 +32,10 @@ const Estadisticas = () => {
         const res = await axiosInstance.get("/api/orders");
         setOrdenes(res.data || []);
       } catch (error) {
-        console.error("Error al obtener órdenes:", error);
+        console.error(
+          "Error al obtener órdenes:",
+          error
+        );
         setOrdenes([]);
       } finally {
         setLoading(false);
@@ -34,40 +45,110 @@ const Estadisticas = () => {
     obtenerOrdenes();
   }, []);
 
-  // 🔥 PROTECCIÓN products
-  const listaProductos = Array.isArray(products) ? products : [];
+  // 🔥 PROTECCIÓN
+  const listaProductos = Array.isArray(products)
+    ? products
+    : [];
 
-  // 💰 INVERSIÓN REAL
-  const inversionInicial = listaProductos.reduce((acc, p) => {
-    return acc + Number(p.montoSolicitado || 0);
-  }, 0);
+  // 💰 CAPITAL INICIAL
+  const inversionInicial = listaProductos.reduce(
+    (acc, p) => {
+      return acc + Number(p.montoSolicitado || 0);
+    },
+    0
+  );
 
-  // 📈 TOTAL DEUDA
-  const deudaTotal = listaProductos.reduce((acc, p) => {
-    return acc + Number(p.totalAPagar || p.precio || 0);
-  }, 0);
+  // 📈 CARTERA ACTIVA
+  const deudaTotal = listaProductos.reduce(
+    (acc, p) => {
+      return (
+        acc + Number(p.totalAPagar || p.precio || 0)
+      );
+    },
+    0
+  );
 
-  // 💵 RECAUDADO
+  // 💵 TOTAL RECAUDADO
   const totalRecaudado = ordenes.reduce((acc, o) => {
     return acc + Number(o.total || 0);
   }, 0);
 
-  // 💸 RESTANTE
+  // 🔥 TOTAL REINVERTIDO
+  const totalReinvertido = reinversiones.reduce(
+    (acc, r) => {
+      return acc + Number(r.monto || 0);
+    },
+    0
+  );
 
+  // 🔥 CAPITAL TRABAJANDO
+  const capitalTrabajando =
+    inversionInicial + totalReinvertido;
 
-  // 🔥 GANANCIAS
-  const gananciaActual = totalRecaudado - inversionInicial;
-  const gananciaTotal = deudaTotal + totalRecaudado - inversionInicial;
+  // 💰 PATRIMONIO TOTAL
+  const patrimonio =
+    totalRecaudado + deudaTotal;
 
-  // 📊 DATA SEGURA
+  // 🔥 GANANCIA REAL
+  const gananciaReal =
+    patrimonio - capitalTrabajando;
+
+  // 💵 DINERO DISPONIBLE
+  const dineroDisponible =
+    totalRecaudado - totalReinvertido;
+
+  // 📈 RENDIMIENTO
+  const rendimiento =
+    capitalTrabajando > 0
+      ? (
+          (gananciaReal / capitalTrabajando) *
+          100
+        ).toFixed(2)
+      : 0;
+
+  // 📊 DATA PARA GRÁFICA
   const data = [
-    { name: "Recaudado", value: totalRecaudado || 0 },
-    { name: "Pendiente", value: deudaTotal || 0 },
+    {
+      name: "Capital trabajando",
+      value: capitalTrabajando,
+    },
+    {
+      name: "Recaudado",
+      value: totalRecaudado,
+    },
+    {
+      name: "Pendiente",
+      value: deudaTotal,
+    },
   ];
 
-  const COLORS = ["#00C49F", "#FF8042"];
+  const COLORS = [
+    "#0088FE",
+    "#00C49F",
+    "#FF8042",
+  ];
 
-  // 🔥 LOADING REAL
+  // 🔥 AGREGAR REINVERSIÓN
+  const agregarReinversion = () => {
+    if (
+      !montoReinversion ||
+      Number(montoReinversion) <= 0
+    ) {
+      return;
+    }
+
+    setReinversiones([
+      ...reinversiones,
+      {
+        monto: Number(montoReinversion),
+        fecha: new Date(),
+      },
+    ]);
+
+    setMontoReinversion("");
+  };
+
+  // 🔥 LOADING
   if (loading) {
     return <p>Cargando datos...</p>;
   }
@@ -76,11 +157,66 @@ const Estadisticas = () => {
     <div style={{ padding: "20px" }}>
       <h1>📊 Estadísticas Financieras</h1>
 
-      {/* CARDS */}
-      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+      {/* 🔥 REINVERSIÓN */}
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          gap: "10px",
+          flexWrap: "wrap",
+        }}
+      >
+        <input
+          type="number"
+          placeholder="Monto a reinvertir"
+          value={montoReinversion}
+          onChange={(e) =>
+            setMontoReinversion(e.target.value)
+          }
+          style={{
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <button
+          onClick={agregarReinversion}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderRadius: "8px",
+            background: "#00C49F",
+            color: "white",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          Reinvertir
+        </button>
+      </div>
+
+      {/* 🔥 CARDS */}
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          flexWrap: "wrap",
+        }}
+      >
         <div style={cardStyle}>
-          <h3>💰 Inversión</h3>
+          <h3>💰 Capital Inicial</h3>
           <p>${inversionInicial.toFixed(2)}</p>
+        </div>
+
+        <div style={cardStyle}>
+          <h3>🔄 Reinvertido</h3>
+          <p>${totalReinvertido.toFixed(2)}</p>
+        </div>
+
+        <div style={cardStyle}>
+          <h3>📈 Capital Trabajando</h3>
+          <p>${capitalTrabajando.toFixed(2)}</p>
         </div>
 
         <div style={cardStyle}>
@@ -89,48 +225,54 @@ const Estadisticas = () => {
         </div>
 
         <div style={cardStyle}>
-          <h3>💰 Total cartera</h3>
+          <h3>📊 Pendiente</h3>
           <p>${deudaTotal.toFixed(2)}</p>
         </div>
 
         <div style={cardStyle}>
-          <h3>🔥 Ganancia Actual</h3>
+          <h3>💸 Disponible</h3>
+          <p>${dineroDisponible.toFixed(2)}</p>
+        </div>
+
+        <div style={cardStyle}>
+          <h3>🔥 Ganancia Real</h3>
+
           <p
             style={{
-              color: gananciaActual >= 0 ? "green" : "red",
+              color:
+                gananciaReal >= 0
+                  ? "green"
+                  : "red",
               fontWeight: "bold",
             }}
           >
-            ${gananciaActual.toFixed(2)}
+            ${gananciaReal.toFixed(2)}
           </p>
         </div>
 
         <div style={cardStyle}>
-          <h3>🔥 Ganancia Total</h3>
-          <p
-            style={{
-              color: gananciaTotal >= 0 ? "green" : "red",
-              fontWeight: "bold",
-            }}
-          >
-            ${gananciaTotal.toFixed(2)}
-          </p>
+          <h3>📈 Rendimiento</h3>
+          <p>{rendimiento}%</p>
         </div>
       </div>
 
-      {/* GRÁFICA */}
+      {/* 📊 GRÁFICA */}
       <div
         style={{
           width: "100%",
-          height: "400px", // 🔥 CLAVE
+          height: "400px",
+          marginTop: "40px",
         }}
       >
-        <h2>📊 Distribución real</h2>
+        <h2>📊 Distribución Financiera</h2>
 
         {data.every((d) => d.value === 0) ? (
           <p>No hay datos para mostrar</p>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
             <PieChart>
               <Pie
                 data={data}
@@ -142,24 +284,47 @@ const Estadisticas = () => {
                 {data.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={
+                      COLORS[index % COLORS.length]
+                    }
                   />
                 ))}
               </Pie>
+
               <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
         )}
       </div>
+
+      {/* 🔥 HISTORIAL */}
+      <div style={{ marginTop: "40px" }}>
+        <h2>📝 Historial de Reinversiones</h2>
+
+        {reinversiones.length === 0 ? (
+          <p>No hay reinversiones aún.</p>
+        ) : (
+          <ul>
+            {reinversiones.map((r, index) => (
+              <li key={index}>
+                💰 ${r.monto} -{" "}
+                {new Date(
+                  r.fecha
+                ).toLocaleDateString()}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
 
-// 🎨 estilo
+// 🎨 ESTILO CARDS
 const cardStyle = {
   flex: "1",
-  minWidth: "200px",
+  minWidth: "220px",
   background: "#f8f9fa",
   padding: "15px",
   borderRadius: "10px",
