@@ -106,7 +106,7 @@ const Estadisticas = () => {
 
   // 📈 CAPITAL TOTAL TRABAJANDO
   const capitalTrabajando =
-    inversionInicial + totalReinvertido;
+    inversionInicial - totalReinvertido;
 
   // 💰 PATRIMONIO
   const patrimonio =
@@ -120,14 +120,7 @@ const Estadisticas = () => {
   const dineroDisponible =
     totalRecaudado - totalReinvertido;
 
-  // 📈 RENDIMIENTO
-  const rendimiento =
-    capitalTrabajando > 0
-      ? (
-          (gananciaReal / capitalTrabajando) *
-          100
-        ).toFixed(2)
-      : 0;
+
 
   // 📊 DATA GRÁFICA
   const data = [
@@ -241,12 +234,15 @@ const Estadisticas = () => {
           flexWrap: "wrap",
         }}
       >
-        <div style={cardStyle}>
-          <h3>💰 Capital Inicial</h3>
+
+<div style={cardStyle}>
+          <h3>📈 Capital Trabajando</h3>
           <p>
-            ${inversionInicial.toFixed(2)}
+            ${capitalTrabajando.toFixed(2)}
           </p>
         </div>
+
+        
 
         <div style={cardStyle}>
           <h3>🔄 Reinvertido</h3>
@@ -256,9 +252,9 @@ const Estadisticas = () => {
         </div>
 
         <div style={cardStyle}>
-          <h3>📈 Capital Trabajando</h3>
+          <h3>💰 Monto prestado</h3>
           <p>
-            ${capitalTrabajando.toFixed(2)}
+            ${inversionInicial.toFixed(2)}
           </p>
         </div>
 
@@ -298,10 +294,7 @@ const Estadisticas = () => {
           </p>
         </div>
 
-        <div style={cardStyle}>
-          <h3>📈 Rendimiento</h3>
-          <p>{rendimiento}%</p>
-        </div>
+        
       </div>
 
       {/* 📊 GRÁFICA */}
