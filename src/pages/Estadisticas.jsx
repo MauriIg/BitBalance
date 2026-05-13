@@ -13,9 +13,7 @@ import {
 } from "recharts";
 
 const Estadisticas = () => {
-  const { products } = useSelector(
-    (state) => state.product
-  );
+  const { products } = useSelector((state) => state.product);
 
   const [ordenes, setOrdenes] = useState([]);
   const [reinversiones, setReinversiones] =
@@ -26,30 +24,27 @@ const Estadisticas = () => {
 
   const [loading, setLoading] = useState(true);
 
-  // 🔥 CARGAR DATOS
+  // 🔥 OBTENER DATOS
   useEffect(() => {
-    const cargarDatos = async () => {
+    const obtenerDatos = async () => {
       try {
-        // 📦 ÓRDENES
-        const ordenesRes =
-          await axiosInstance.get(
-            "/api/orders"
-          );
+        // 📦 PETICIONES EN PARALELO
+        const [ordenesRes, reinversionesRes] =
+          await Promise.all([
+            axiosInstance.get("/api/orders"),
+            axiosInstance.get(
+              "/api/reinversiones"
+            ),
+          ]);
 
         setOrdenes(ordenesRes.data || []);
-
-        // 🔄 REINVERSIONES
-        const reinversionesRes =
-          await axiosInstance.get(
-            "/api/reinversiones"
-          );
 
         setReinversiones(
           reinversionesRes.data || []
         );
       } catch (error) {
         console.error(
-          "Error cargando estadísticas:",
+          "Error obteniendo datos:",
           error
         );
 
@@ -60,10 +55,10 @@ const Estadisticas = () => {
       }
     };
 
-    cargarDatos();
+    obtenerDatos();
   }, []);
 
-  // 🔥 PROTECCIÓN
+  // 🔥 PROTECCIÓN PRODUCTS
   const listaProductos = Array.isArray(products)
     ? products
     : [];
@@ -76,11 +71,11 @@ const Estadisticas = () => {
     0
   );
 
-  // 📈 TOTAL CARTERA
+  // 📈 CARTERA ACTIVA
   const deudaTotal = listaProductos.reduce(
     (acc, p) => {
       return (
-        acc + Number(p.totalAPagar || 0)
+        acc + Number(p.totalAPagar || p.precio || 0)
       );
     },
     0
@@ -100,7 +95,7 @@ const Estadisticas = () => {
       return acc + Number(r.monto || 0);
     }, 0);
 
-  // 📈 CAPITAL TRABAJANDO
+  // 📈 CAPITAL TOTAL TRABAJANDO
   const capitalTrabajando =
     inversionInicial + totalReinvertido;
 
@@ -112,7 +107,7 @@ const Estadisticas = () => {
   const gananciaReal =
     patrimonio - capitalTrabajando;
 
-  // 💸 DISPONIBLE
+  // 💵 DINERO DISPONIBLE
   const dineroDisponible =
     totalRecaudado - totalReinvertido;
 
@@ -120,8 +115,7 @@ const Estadisticas = () => {
   const rendimiento =
     capitalTrabajando > 0
       ? (
-          (gananciaReal /
-            capitalTrabajando) *
+          (gananciaReal / capitalTrabajando) *
           100
         ).toFixed(2)
       : 0;
@@ -148,25 +142,22 @@ const Estadisticas = () => {
     "#FF8042",
   ];
 
-  // 🔥 GUARDAR REINVERSIÓN
+  // 🔥 AGREGAR REINVERSIÓN
   const agregarReinversion = async () => {
-    try {
-      if (
-        !montoReinversion ||
-        Number(montoReinversion) <= 0
-      ) {
-        return;
-      }
+    if (
+      !montoReinversion ||
+      Number(montoReinversion) <= 0
+    ) {
+      return;
+    }
 
-      const res =
-        await axiosInstance.post(
-          "/api/reinversiones",
-          {
-            monto: Number(
-              montoReinversion
-            ),
-          }
-        );
+    try {
+      const res = await axiosInstance.post(
+        "/api/reinversiones",
+        {
+          monto: Number(montoReinversion),
+        }
+      );
 
       // 🔥 ACTUALIZAR STATE
       setReinversiones([
@@ -174,11 +165,10 @@ const Estadisticas = () => {
         ...reinversiones,
       ]);
 
-      // 🔥 LIMPIAR INPUT
       setMontoReinversion("");
     } catch (error) {
       console.error(
-        "Error guardando reinversión:",
+        "Error al guardar reinversión:",
         error
       );
     }
@@ -193,7 +183,7 @@ const Estadisticas = () => {
     <div style={{ padding: "20px" }}>
       <h1>📊 Estadísticas Financieras</h1>
 
-      {/* 🔥 FORMULARIO */}
+      {/* 🔥 REINVERSIÓN */}
       <div
         style={{
           marginBottom: "20px",
@@ -245,47 +235,40 @@ const Estadisticas = () => {
         <div style={cardStyle}>
           <h3>💰 Capital Inicial</h3>
           <p>
-            $
-            {inversionInicial.toFixed(2)}
+            ${inversionInicial.toFixed(2)}
           </p>
         </div>
 
         <div style={cardStyle}>
           <h3>🔄 Reinvertido</h3>
           <p>
-            $
-            {totalReinvertido.toFixed(2)}
+            ${totalReinvertido.toFixed(2)}
           </p>
         </div>
 
         <div style={cardStyle}>
           <h3>📈 Capital Trabajando</h3>
           <p>
-            $
-            {capitalTrabajando.toFixed(2)}
+            ${capitalTrabajando.toFixed(2)}
           </p>
         </div>
 
         <div style={cardStyle}>
           <h3>💵 Recaudado</h3>
           <p>
-            $
-            {totalRecaudado.toFixed(2)}
+            ${totalRecaudado.toFixed(2)}
           </p>
         </div>
 
         <div style={cardStyle}>
           <h3>📊 Pendiente</h3>
-          <p>
-            ${deudaTotal.toFixed(2)}
-          </p>
+          <p>${deudaTotal.toFixed(2)}</p>
         </div>
 
         <div style={cardStyle}>
           <h3>💸 Disponible</h3>
           <p>
-            $
-            {dineroDisponible.toFixed(2)}
+            ${dineroDisponible.toFixed(2)}
           </p>
         </div>
 
@@ -302,8 +285,7 @@ const Estadisticas = () => {
               fontWeight: "bold",
             }}
           >
-            $
-            {gananciaReal.toFixed(2)}
+            ${gananciaReal.toFixed(2)}
           </p>
         </div>
 
@@ -321,9 +303,7 @@ const Estadisticas = () => {
           marginTop: "40px",
         }}
       >
-        <h2>
-          📊 Distribución Financiera
-        </h2>
+        <h2>📊 Distribución Financiera</h2>
 
         {data.every(
           (d) => d.value === 0
@@ -365,11 +345,7 @@ const Estadisticas = () => {
       </div>
 
       {/* 🔥 HISTORIAL */}
-      <div
-        style={{
-          marginTop: "40px",
-        }}
-      >
+      <div style={{ marginTop: "40px" }}>
         <h2>
           📝 Historial de Reinversiones
         </h2>
@@ -380,29 +356,18 @@ const Estadisticas = () => {
           </p>
         ) : (
           <ul>
-            {reinversiones.map(
-              (r, index) => (
-                <li
-                  key={
-                    r._id || index
-                  }
-                  style={{
-                    marginBottom:
-                      "10px",
-                  }}
-                >
-                  💰 $
-                  {Number(
-                    r.monto
-                  ).toFixed(2)}
-                  {" - "}
-                  {new Date(
-                    r.createdAt ||
-                      r.fecha
-                  ).toLocaleDateString()}
-                </li>
-              )
-            )}
+            {reinversiones.map((r) => (
+              <li key={r._id}>
+                💰 $
+                {Number(
+                  r.monto
+                ).toFixed(2)}{" "}
+                -{" "}
+                {new Date(
+                  r.createdAt
+                ).toLocaleDateString()}
+              </li>
+            ))}
           </ul>
         )}
       </div>
