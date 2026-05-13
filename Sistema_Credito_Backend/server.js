@@ -45,7 +45,7 @@ app.use("/api/restock", restockRoutes);
 app.use("/api/stock", stockRoutes);
 app.use("/api/pedidos-proveedor", supplierOrderRoutes);
 app.use("/api/categorias", categoriaRoutes);
-app.use("/api/reinversionRoutes", reinversionRoutes);
+app.use("/api/reinversionesRoutes", reinversionRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => res.send("🚀 API corriendo correctamente"));
