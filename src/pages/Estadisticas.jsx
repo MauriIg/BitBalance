@@ -73,7 +73,7 @@ const Estadisticas = () => {
     : [];
 
   // 💰 CAPITAL INICIAL
-  const inversionInicial = listaProductos.reduce(
+  const inversionInicial = listaProductos - totalReinvertido.reduce(
     (acc, p) => {
       return acc + Number(p.montoSolicitado || 0);
     },
@@ -114,7 +114,7 @@ const Estadisticas = () => {
 
   // 🔥 GANANCIA REAL
   const gananciaReal =
-    patrimonio - capitalTrabajando;
+    patrimonio - inversionInicial;
 
   // 💵 DINERO DISPONIBLE
   const dineroDisponible =
