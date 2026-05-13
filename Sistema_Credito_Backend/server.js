@@ -11,6 +11,7 @@ import restockRoutes from "./routes/restockRoutes.js";
 import stockRoutes from "./routes/stockRoutes.js";
 import supplierOrderRoutes from "./routes/supplierOrderRoutes.js";
 import categoriaRoutes from "./routes/categoriaRoutes.js";
+import reinversionRoutes from "./routes/reinversionRoutes.js";
 
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use("/api/restock", restockRoutes);
 app.use("/api/stock", stockRoutes);
 app.use("/api/pedidos-proveedor", supplierOrderRoutes);
 app.use("/api/categorias", categoriaRoutes);
+app.use("/api/reinversionesRoutes", reinversionRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => res.send("🚀 API corriendo correctamente"));

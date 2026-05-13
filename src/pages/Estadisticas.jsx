@@ -13,36 +13,54 @@ import {
 } from "recharts";
 
 const Estadisticas = () => {
-  const { products } = useSelector((state) => state.product);
+  const { products } = useSelector(
+    (state) => state.product
+  );
 
   const [ordenes, setOrdenes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [reinversiones, setReinversiones] =
+    useState([]);
 
-  // 🔥 NUEVO
   const [montoReinversion, setMontoReinversion] =
     useState("");
 
-  const [reinversiones, setReinversiones] = useState(
-    []
-  );
+  const [loading, setLoading] = useState(true);
 
+  // 🔥 CARGAR DATOS
   useEffect(() => {
-    const obtenerOrdenes = async () => {
+    const cargarDatos = async () => {
       try {
-        const res = await axiosInstance.get("/api/orders");
-        setOrdenes(res.data || []);
+        // 📦 ÓRDENES
+        const ordenesRes =
+          await axiosInstance.get(
+            "/api/orders"
+          );
+
+        setOrdenes(ordenesRes.data || []);
+
+        // 🔄 REINVERSIONES
+        const reinversionesRes =
+          await axiosInstance.get(
+            "/api/reinversiones"
+          );
+
+        setReinversiones(
+          reinversionesRes.data || []
+        );
       } catch (error) {
         console.error(
-          "Error al obtener órdenes:",
+          "Error cargando estadísticas:",
           error
         );
+
         setOrdenes([]);
+        setReinversiones([]);
       } finally {
         setLoading(false);
       }
     };
 
-    obtenerOrdenes();
+    cargarDatos();
   }, []);
 
   // 🔥 PROTECCIÓN
@@ -58,34 +76,35 @@ const Estadisticas = () => {
     0
   );
 
-  // 📈 CARTERA ACTIVA
+  // 📈 TOTAL CARTERA
   const deudaTotal = listaProductos.reduce(
     (acc, p) => {
       return (
-        acc + Number(p.totalAPagar || p.precio || 0)
+        acc + Number(p.totalAPagar || 0)
       );
     },
     0
   );
 
   // 💵 TOTAL RECAUDADO
-  const totalRecaudado = ordenes.reduce((acc, o) => {
-    return acc + Number(o.total || 0);
-  }, 0);
-
-  // 🔥 TOTAL REINVERTIDO
-  const totalReinvertido = reinversiones.reduce(
-    (acc, r) => {
-      return acc + Number(r.monto || 0);
+  const totalRecaudado = ordenes.reduce(
+    (acc, o) => {
+      return acc + Number(o.total || 0);
     },
     0
   );
 
-  // 🔥 CAPITAL TRABAJANDO
+  // 🔄 TOTAL REINVERTIDO
+  const totalReinvertido =
+    reinversiones.reduce((acc, r) => {
+      return acc + Number(r.monto || 0);
+    }, 0);
+
+  // 📈 CAPITAL TRABAJANDO
   const capitalTrabajando =
     inversionInicial + totalReinvertido;
 
-  // 💰 PATRIMONIO TOTAL
+  // 💰 PATRIMONIO
   const patrimonio =
     totalRecaudado + deudaTotal;
 
@@ -93,7 +112,7 @@ const Estadisticas = () => {
   const gananciaReal =
     patrimonio - capitalTrabajando;
 
-  // 💵 DINERO DISPONIBLE
+  // 💸 DISPONIBLE
   const dineroDisponible =
     totalRecaudado - totalReinvertido;
 
@@ -101,12 +120,13 @@ const Estadisticas = () => {
   const rendimiento =
     capitalTrabajando > 0
       ? (
-          (gananciaReal / capitalTrabajando) *
+          (gananciaReal /
+            capitalTrabajando) *
           100
         ).toFixed(2)
       : 0;
 
-  // 📊 DATA PARA GRÁFICA
+  // 📊 DATA GRÁFICA
   const data = [
     {
       name: "Capital trabajando",
@@ -128,24 +148,40 @@ const Estadisticas = () => {
     "#FF8042",
   ];
 
-  // 🔥 AGREGAR REINVERSIÓN
-  const agregarReinversion = () => {
-    if (
-      !montoReinversion ||
-      Number(montoReinversion) <= 0
-    ) {
-      return;
+  // 🔥 GUARDAR REINVERSIÓN
+  const agregarReinversion = async () => {
+    try {
+      if (
+        !montoReinversion ||
+        Number(montoReinversion) <= 0
+      ) {
+        return;
+      }
+
+      const res =
+        await axiosInstance.post(
+          "/api/reinversiones",
+          {
+            monto: Number(
+              montoReinversion
+            ),
+          }
+        );
+
+      // 🔥 ACTUALIZAR STATE
+      setReinversiones([
+        res.data,
+        ...reinversiones,
+      ]);
+
+      // 🔥 LIMPIAR INPUT
+      setMontoReinversion("");
+    } catch (error) {
+      console.error(
+        "Error guardando reinversión:",
+        error
+      );
     }
-
-    setReinversiones([
-      ...reinversiones,
-      {
-        monto: Number(montoReinversion),
-        fecha: new Date(),
-      },
-    ]);
-
-    setMontoReinversion("");
   };
 
   // 🔥 LOADING
@@ -157,7 +193,7 @@ const Estadisticas = () => {
     <div style={{ padding: "20px" }}>
       <h1>📊 Estadísticas Financieras</h1>
 
-      {/* 🔥 REINVERSIÓN */}
+      {/* 🔥 FORMULARIO */}
       <div
         style={{
           marginBottom: "20px",
@@ -171,7 +207,9 @@ const Estadisticas = () => {
           placeholder="Monto a reinvertir"
           value={montoReinversion}
           onChange={(e) =>
-            setMontoReinversion(e.target.value)
+            setMontoReinversion(
+              e.target.value
+            )
           }
           style={{
             padding: "10px",
@@ -206,32 +244,49 @@ const Estadisticas = () => {
       >
         <div style={cardStyle}>
           <h3>💰 Capital Inicial</h3>
-          <p>${inversionInicial.toFixed(2)}</p>
+          <p>
+            $
+            {inversionInicial.toFixed(2)}
+          </p>
         </div>
 
         <div style={cardStyle}>
           <h3>🔄 Reinvertido</h3>
-          <p>${totalReinvertido.toFixed(2)}</p>
+          <p>
+            $
+            {totalReinvertido.toFixed(2)}
+          </p>
         </div>
 
         <div style={cardStyle}>
           <h3>📈 Capital Trabajando</h3>
-          <p>${capitalTrabajando.toFixed(2)}</p>
+          <p>
+            $
+            {capitalTrabajando.toFixed(2)}
+          </p>
         </div>
 
         <div style={cardStyle}>
           <h3>💵 Recaudado</h3>
-          <p>${totalRecaudado.toFixed(2)}</p>
+          <p>
+            $
+            {totalRecaudado.toFixed(2)}
+          </p>
         </div>
 
         <div style={cardStyle}>
           <h3>📊 Pendiente</h3>
-          <p>${deudaTotal.toFixed(2)}</p>
+          <p>
+            ${deudaTotal.toFixed(2)}
+          </p>
         </div>
 
         <div style={cardStyle}>
           <h3>💸 Disponible</h3>
-          <p>${dineroDisponible.toFixed(2)}</p>
+          <p>
+            $
+            {dineroDisponible.toFixed(2)}
+          </p>
         </div>
 
         <div style={cardStyle}>
@@ -243,10 +298,12 @@ const Estadisticas = () => {
                 gananciaReal >= 0
                   ? "green"
                   : "red",
+
               fontWeight: "bold",
             }}
           >
-            ${gananciaReal.toFixed(2)}
+            $
+            {gananciaReal.toFixed(2)}
           </p>
         </div>
 
@@ -264,9 +321,13 @@ const Estadisticas = () => {
           marginTop: "40px",
         }}
       >
-        <h2>📊 Distribución Financiera</h2>
+        <h2>
+          📊 Distribución Financiera
+        </h2>
 
-        {data.every((d) => d.value === 0) ? (
+        {data.every(
+          (d) => d.value === 0
+        ) ? (
           <p>No hay datos para mostrar</p>
         ) : (
           <ResponsiveContainer
@@ -281,14 +342,19 @@ const Estadisticas = () => {
                 outerRadius={120}
                 label
               >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={
-                      COLORS[index % COLORS.length]
-                    }
-                  />
-                ))}
+                {data.map(
+                  (entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        COLORS[
+                          index %
+                            COLORS.length
+                        ]
+                      }
+                    />
+                  )
+                )}
               </Pie>
 
               <Tooltip />
@@ -299,21 +365,44 @@ const Estadisticas = () => {
       </div>
 
       {/* 🔥 HISTORIAL */}
-      <div style={{ marginTop: "40px" }}>
-        <h2>📝 Historial de Reinversiones</h2>
+      <div
+        style={{
+          marginTop: "40px",
+        }}
+      >
+        <h2>
+          📝 Historial de Reinversiones
+        </h2>
 
         {reinversiones.length === 0 ? (
-          <p>No hay reinversiones aún.</p>
+          <p>
+            No hay reinversiones aún.
+          </p>
         ) : (
           <ul>
-            {reinversiones.map((r, index) => (
-              <li key={index}>
-                💰 ${r.monto} -{" "}
-                {new Date(
-                  r.fecha
-                ).toLocaleDateString()}
-              </li>
-            ))}
+            {reinversiones.map(
+              (r, index) => (
+                <li
+                  key={
+                    r._id || index
+                  }
+                  style={{
+                    marginBottom:
+                      "10px",
+                  }}
+                >
+                  💰 $
+                  {Number(
+                    r.monto
+                  ).toFixed(2)}
+                  {" - "}
+                  {new Date(
+                    r.createdAt ||
+                      r.fecha
+                  ).toLocaleDateString()}
+                </li>
+              )
+            )}
           </ul>
         )}
       </div>
@@ -328,7 +417,8 @@ const cardStyle = {
   background: "#f8f9fa",
   padding: "15px",
   borderRadius: "10px",
-  boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+  boxShadow:
+    "0 2px 5px rgba(0,0,0,0.1)",
   textAlign: "center",
 };
 
