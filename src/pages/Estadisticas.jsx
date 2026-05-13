@@ -114,7 +114,7 @@ const Estadisticas = () => {
 
   // 🔥 GANANCIA REAL
   const gananciaReal =
-    patrimonio - inversionInicial;
+    patrimonio - capitalTrabajando;
 
   // 💵 DINERO DISPONIBLE
   const dineroDisponible =
