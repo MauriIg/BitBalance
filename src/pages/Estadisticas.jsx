@@ -28,33 +28,42 @@ const Estadisticas = () => {
   useEffect(() => {
     const obtenerDatos = async () => {
       try {
-        // 📦 PETICIONES EN PARALELO
-        const [ordenesRes, reinversionesRes] =
-          await Promise.all([
-            axiosInstance.get("/api/orders"),
-            axiosInstance.get(
-              "/api/reinversiones"
-            ),
-          ]);
-
+        // 🔥 ÓRDENES
+        const ordenesRes =
+          await axiosInstance.get("/api/orders");
+  
         setOrdenes(ordenesRes.data || []);
-
+      } catch (error) {
+        console.error(
+          "Error obteniendo órdenes:",
+          error
+        );
+  
+        setOrdenes([]);
+      }
+  
+      try {
+        // 🔥 REINVERSIONES
+        const reinversionesRes =
+          await axiosInstance.get(
+            "/api/reinversiones"
+          );
+  
         setReinversiones(
           reinversionesRes.data || []
         );
       } catch (error) {
         console.error(
-          "Error obteniendo datos:",
+          "Error obteniendo reinversiones:",
           error
         );
-
-        setOrdenes([]);
+  
         setReinversiones([]);
-      } finally {
-        setLoading(false);
       }
+  
+      setLoading(false);
     };
-
+  
     obtenerDatos();
   }, []);
 
