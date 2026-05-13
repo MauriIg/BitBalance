@@ -73,7 +73,7 @@ const Estadisticas = () => {
     : [];
 
   // 💰 CAPITAL INICIAL
-  const inversionInicial = listaProductos - totalReinvertido.reduce(
+  const inversionInicial = listaProductos.reduce(
     (acc, p) => {
       return acc + Number(p.montoSolicitado || 0);
     },
