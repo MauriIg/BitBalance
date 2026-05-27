@@ -2,20 +2,16 @@
   --bg: #f5f5f5;
   --text: #1a1a1a;
   --card: #ffffff;
-  --button: #00c49f;
   --border: #dddddd;
+  --table: #ffffff;
 }
 
-.dark {
+body.dark {
   --bg: #121212;
   --text: #ffffff;
   --card: #1e1e1e;
-  --button: #00c49f;
   --border: #333333;
-}
-
-* {
-  box-sizing: border-box;
+  --table: #1a1a1a;
 }
 
 body {
@@ -23,55 +19,38 @@ body {
   min-width: 320px;
   min-height: 100vh;
 
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
 
   font-family:
     system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
+    Avenir,
+    Helvetica,
+    Arial,
     sans-serif;
 
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
+  line-height: 1.5;
 }
 
 button {
   border-radius: 8px;
-  border: none;
-  padding: 10px 16px;
-  font-size: 1rem;
+  border: 1px solid var(--border);
+  padding: 0.6em 1.2em;
+  font-size: 1em;
   cursor: pointer;
 
-  background-color: var(--button);
-  color: white;
-
-  transition: 0.2s;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-
-  background-color: var(--card);
+  background: var(--card);
   color: var(--text);
 }
 
-h1,
-h2,
-h3,
-p {
-  margin-top: 0;
+input,
+select,
+textarea {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
