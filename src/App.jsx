@@ -98,14 +98,11 @@ const App = () => {
       "darkMode",
       darkMode
     );
-
-    if (darkMode) {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove(
-        "dark"
-      );
-    }
+  
+    document.body.className =
+      darkMode ? "dark" : "";
+  
+    console.log(document.body.className);
   }, [darkMode]);
 
   // 🔥 CARGAR CARRITO
