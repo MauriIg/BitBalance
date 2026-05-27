@@ -125,12 +125,9 @@ const Products = () => {
           justifyContent: "space-between",
           marginBottom: "20px",
           gap: "20px",
-          padding: "20px",
-    background: "var(--bg)",
-    color: "var(--text)",
-    minHeight: "100vh",
+          backgroundColor: "#f0f0f0",
           borderBottom: "1px solid #ccc",
-         
+          padding: "12px 20px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
