@@ -187,7 +187,7 @@ const Products = () => {
             background: "#FFD200",
             color: "black",
             padding: "8px 12px",
-            border: "none",
+            border: "5PX",
             borderRadius: "5px",
             fontWeight: "bold",
           }}>
