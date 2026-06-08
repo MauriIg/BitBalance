@@ -166,12 +166,13 @@ const Products = () => {
           Registro de pago pendiente
         </button>
 
-        <button onClick={() => navigate("/estadisticas")}>
+        <button onClick={() => navigate("/estadisticas")} style={{ marginRight: "10px" }}>
   📊 Estadísticas
 </button>
         <button
           onClick={handleLogout}
           style={{
+            marginRight: "10px",
             background: "#c0392b",
             color: "white",
             padding: "8px 12px",
@@ -184,6 +185,7 @@ const Products = () => {
         </button>
 
         <button onClick={() => navigate("/LotesPollos")} style={{
+          marginRight: "20px",
             background: "#FFD200",
             color: "black",
             padding: "8px 12px",
