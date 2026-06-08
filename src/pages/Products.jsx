@@ -186,7 +186,14 @@ const Products = () => {
           Cerrar sesión
         </button>
 
-        <button onClick={() => navigate("/LotesPollos")} style={{ marginRight: "10px" }}>
+        <button onClick={() => navigate("/LotesPollos")} style={{
+            background: "#FFD200",
+            color: "black",
+            padding: "8px 12px",
+            border: "none",
+            borderRadius: "5px",
+            fontWeight: "bold",
+          }}>
           Pollos "TOTO"
         </button>
       </div>
