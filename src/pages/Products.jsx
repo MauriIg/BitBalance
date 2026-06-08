@@ -169,9 +169,6 @@ const Products = () => {
         <button onClick={() => navigate("/estadisticas")}>
   📊 Estadísticas
 </button>
-<button onClick={() => navigate("/register")} style={{ marginRight: "10px" }}>
-          Add Admin
-        </button>
         <button
           onClick={handleLogout}
           style={{
@@ -194,7 +191,7 @@ const Products = () => {
             borderRadius: "5px",
             fontWeight: "bold",
           }}>
-          Pollos "TOTO"
+          Pollos "DON TOTO"
         </button>
       </div>
 
