@@ -218,6 +218,17 @@ const App = () => {
           element={<Estadisticas />}
         />
 
+<Route
+  path="/lotes-pollos"
+  element={
+    <PrivateRoute
+      allowedRoles={["admin"]}
+    >
+      <LotesPollos />
+    </PrivateRoute>
+  }
+/>
+
         <Route
           path="/catalogo"
           element={<Catalogo />}
@@ -393,10 +404,6 @@ const App = () => {
         />
       </Routes>
 
-      <Route
-  path="/avicola/lotes"
-  element={<LotesPollos />}
-/>
     </>
   );
 };
