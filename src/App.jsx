@@ -30,6 +30,7 @@ import RecoverPassword from "./pages/RecoverPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AsignarRapiditos from "./pages/AsignarRapiditos";
 import Estadisticas from "./pages/Estadisticas";
+import LotesPollos from "./pages/LotesPollos";
 
 // 🛒 Redux carrito
 import {
@@ -391,6 +392,11 @@ const App = () => {
           }
         />
       </Routes>
+
+      <Route
+  path="/avicola/lotes"
+  element={<LotesPollos />}
+/>
     </>
   );
 };
