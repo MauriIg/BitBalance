@@ -55,7 +55,7 @@ const Avicola = () => {
           padding: "30px",
         }}
       >
-        <h1>🐔 Sistema Avícola</h1>
+        <h1>Bienvenido al sistema Avicola "Don TOTO"</h1>
 
         <p>
           Administración de pollos,
