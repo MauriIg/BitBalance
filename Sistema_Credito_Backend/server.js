@@ -12,7 +12,7 @@ import stockRoutes from "./routes/stockRoutes.js";
 import supplierOrderRoutes from "./routes/supplierOrderRoutes.js";
 import categoriaRoutes from "./routes/categoriaRoutes.js";
 import reinversionRoutes from "./routes/reinversionRoutes.js";
-import lotePolloRoutes from "./routes/LotePolloRoutes.js";
+import lotePolloRoutes from "./routes/lotePolloRoutes.js";
 import partePolloRoutes from "./routes/PartePolloRoutes.js";
 
 
