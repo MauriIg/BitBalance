@@ -12,7 +12,8 @@ import stockRoutes from "./routes/stockRoutes.js";
 import supplierOrderRoutes from "./routes/supplierOrderRoutes.js";
 import categoriaRoutes from "./routes/categoriaRoutes.js";
 import reinversionRoutes from "./routes/reinversionRoutes.js";
-import lotePolloRoutes from "./routes/lotePolloRoutes.js";
+import lotePolloRoutes from "./routes/LotePolloRoutes.js";
+import partePolloRoutes from "./routes/PartePolloRoutes.js";
 
 
 dotenv.config();
@@ -48,6 +49,8 @@ app.use("/api/pedidos-proveedor", supplierOrderRoutes);
 app.use("/api/categorias", categoriaRoutes);
 app.use("/api/reinversiones", reinversionRoutes);
 app.use("/api/lotes-pollos", lotePolloRoutes);
+app.use("/api/partes-pollo", partePolloRoutes);
+
 
 // Ruta de prueba
 app.get("/", (req, res) => res.send("🚀 API corriendo correctamente"));

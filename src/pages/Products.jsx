@@ -184,7 +184,7 @@ const Products = () => {
           Cerrar sesión
         </button>
 
-        <button onClick={() => navigate("/LotesPollos")} style={{
+        <button onClick={() => navigate("/Avicola.jsx")} style={{
           marginRight: "20px",
             background: "#FFD200",
             color: "black",
