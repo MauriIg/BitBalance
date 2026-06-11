@@ -90,6 +90,12 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.get("/prueba", (req, res) => {
+  res.json({
+    mensaje: "FUNCIONA"
+  });
+});
+
 
 
 export default router;
