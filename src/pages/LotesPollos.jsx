@@ -72,6 +72,10 @@ const LotesPollos = () => {
   
     console.log("ID:", id);
     console.log("Estado:", estado);
+    console.log(
+      "API:",
+      axiosInstance.defaults.baseURL
+    );
   
     try {
       await axiosInstance.put(
