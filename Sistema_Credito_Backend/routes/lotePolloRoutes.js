@@ -34,6 +34,14 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/test", (req, res) => {
+  res.json({
+    mensaje:
+      "Ruta lotes-pollos funcionando"
+  });
+});
+
+
 // ☠️ Registrar muerte
 router.put("/:id/muerte", async (req, res) => {
   try {
@@ -70,6 +78,14 @@ router.put("/:id/muerte", async (req, res) => {
     });
   }
 });
+
+router.get("/test", (req, res) => {
+  res.json({
+    mensaje:
+      "Ruta lotes-pollos funcionando"
+  });
+});
+
 
 router.put("/:id", async (req, res) => {
   try {
