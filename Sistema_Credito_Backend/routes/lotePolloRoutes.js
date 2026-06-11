@@ -71,5 +71,25 @@ router.put("/:id/muerte", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const lote =
+      await LotePollo.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+        }
+      );
+
+    res.json(lote);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+
 
 export default router;

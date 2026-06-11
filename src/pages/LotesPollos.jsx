@@ -65,6 +65,27 @@ const LotesPollos = () => {
     }
   };
 
+  const cambiarEstado = async (
+    id,
+    estado
+  ) => {
+    try {
+      await axiosInstance.put(
+        `/api/lotes-pollos/${id}`,
+        {
+          estado,
+        }
+      );
+  
+      obtenerLotes();
+    } catch (error) {
+      console.error(error);
+      alert(
+        "Error actualizando estado"
+      );
+    }
+  };
+
   const registrarMuerte = async (
     id
   ) => {
@@ -86,6 +107,18 @@ const LotesPollos = () => {
         "Error registrando mortalidad"
       );
     }
+  };
+
+  const thStyle = {
+    padding: "12px",
+    border: "1px solid #ddd",
+    textAlign: "center",
+  };
+  
+  const tdStyle = {
+    padding: "12px",
+    border: "1px solid #ddd",
+    textAlign: "center",
   };
 
   return (
@@ -147,88 +180,133 @@ const LotesPollos = () => {
 
       {/* TABLA */}
       <table
-        style={{
-          width: "100%",
-          borderCollapse:
-            "collapse",
-        }}
-      >
-        <thead>
-          <tr>
-            <th>🐥 Inicial</th>
-            <th>🐔 Vivos</th>
-            <th>☠️ Muertos</th>
-            <th>💰 Compra</th>
-            <th>📅 Fecha</th>
-            <th>📌 Estado</th>
-            <th>⚙️ Acciones</th>
-          </tr>
-        </thead>
+  style={{
+    width: "100%",
+    borderCollapse: "collapse",
+    marginTop: "20px",
+  }}
+>
+  <thead>
+    <tr
+      style={{
+        background: "#343a40",
+        color: "white",
+      }}
+    >
+      <th style={thStyle}>
+        🐥 Inicial
+      </th>
 
-        <tbody>
-          {lotes.map((lote) => (
-            <tr key={lote._id}>
-              <td>
-                {
-                  lote.cantidadInicial
-                }
-              </td>
+      <th style={thStyle}>
+        🐔 Vivos
+      </th>
 
-              <td>
-                {
-                  lote.cantidadActual
-                }
-              </td>
+      <th style={thStyle}>
+        ☠️ Muertos
+      </th>
 
-              <td>
-                {lote.muertos}
-              </td>
+      <th style={thStyle}>
+        💰 Compra
+      </th>
 
-              <td>
-                $
-                {Number(
-                  lote.costoCompra
-                ).toFixed(2)}
-              </td>
+      <th style={thStyle}>
+        📅 Fecha
+      </th>
 
-              <td>
-                {new Date(
-                  lote.fechaCompra
-                ).toLocaleDateString()}
-              </td>
+      <th style={thStyle}>
+        📌 Estado
+      </th>
 
-              <td>
-                {lote.estado}
-              </td>
+      <th style={thStyle}>
+        ⚙️ Acciones
+      </th>
+    </tr>
+  </thead>
 
-              <td>
-                <button
-                  onClick={() =>
-                    registrarMuerte(
-                      lote._id
-                    )
-                  }
-                  style={{
-                    background:
-                      "#dc3545",
-                    color: "white",
-                    border: "none",
-                    borderRadius:
-                      "6px",
-                    padding:
-                      "6px 10px",
-                    cursor:
-                      "pointer",
-                  }}
-                >
-                  ☠️ +1 Muerto
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  <tbody>
+    {lotes.map((lote) => (
+      <tr key={lote._id}>
+        <td style={tdStyle}>
+          {lote.cantidadInicial}
+        </td>
+
+        <td style={tdStyle}>
+          {lote.cantidadActual}
+        </td>
+
+        <td style={tdStyle}>
+          {lote.muertos}
+        </td>
+
+        <td style={tdStyle}>
+          $
+          {Number(
+            lote.costoCompra
+          ).toFixed(2)}
+        </td>
+
+        <td style={tdStyle}>
+          {new Date(
+            lote.fechaCompra
+          ).toLocaleDateString()}
+        </td>
+
+        <td style={tdStyle}>
+          <select
+            value={lote.estado}
+            onChange={(e) =>
+              cambiarEstado(
+                lote._id,
+                e.target.value
+              )
+            }
+          >
+            <option value="creciendo">
+              🐣 Creciendo
+            </option>
+
+            <option value="listo_para_venta">
+              ⚖️ Listo venta
+            </option>
+
+            <option value="vendido">
+              ✅ Vendido
+            </option>
+          </select>
+        </td>
+
+        <td style={tdStyle}>
+          <button
+            onClick={() =>
+              registrarMuerte(
+                lote._id
+              )
+            }
+            style={{
+              background:
+                "#dc3545",
+              color: "white",
+              border: "none",
+              borderRadius:
+                "6px",
+              padding:
+                "8px 12px",
+              cursor:
+                "pointer",
+            }}
+          >
+            ☠️ +1 Muerto
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+
     </div>
+
+    
   );
 };
 
