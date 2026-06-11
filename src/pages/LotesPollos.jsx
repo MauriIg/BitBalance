@@ -69,6 +69,10 @@ const LotesPollos = () => {
     id,
     estado
   ) => {
+  
+    console.log("ID:", id);
+    console.log("Estado:", estado);
+  
     try {
       await axiosInstance.put(
         `/api/lotes-pollos/${id}`,
@@ -78,11 +82,9 @@ const LotesPollos = () => {
       );
   
       obtenerLotes();
+  
     } catch (error) {
       console.error(error);
-      alert(
-        "Error actualizando estado"
-      );
     }
   };
 
