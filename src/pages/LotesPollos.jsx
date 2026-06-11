@@ -20,7 +20,7 @@ const LotesPollos = () => {
   const obtenerLotes = async () => {
     try {
       const res = await axiosInstance.get(
-        "/api/lotes-pollos"
+        "/api/LotePollo"
       );
 
       setLotes(res.data);
@@ -60,7 +60,7 @@ const LotesPollos = () => {
       };
 
       const res = await axiosInstance.post(
-        "/api/lotes-pollos",
+        "/api/LotePollo",
         datos
       );
 
