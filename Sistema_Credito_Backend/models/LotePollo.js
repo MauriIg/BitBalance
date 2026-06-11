@@ -2,17 +2,38 @@ import mongoose from "mongoose";
 
 const lotePolloSchema = new mongoose.Schema(
   {
-    cantidad: {
+    // 🐥 Pollitos comprados inicialmente
+    cantidadInicial: {
       type: Number,
       required: true,
     },
 
+    // 🐔 Pollos vivos actualmente
+    cantidadActual: {
+      type: Number,
+      required: true,
+    },
+
+    // ☠️ Muertes acumuladas
+    muertos: {
+      type: Number,
+      default: 0,
+    },
+
+    // 💰 Costo de compra de los pollitos
     costoCompra: {
       type: Number,
       required: true,
     },
 
+    // 🌽 Alimento consumido
     alimentoKg: {
+      type: Number,
+      default: 0,
+    },
+
+    // ⚖️ Peso promedio actual por pollo
+    pesoPromedio: {
       type: Number,
       default: 0,
     },
@@ -29,6 +50,11 @@ const lotePolloSchema = new mongoose.Schema(
 
     estado: {
       type: String,
+      enum: [
+        "creciendo",
+        "listo_para_venta",
+        "vendido",
+      ],
       default: "creciendo",
     },
   },

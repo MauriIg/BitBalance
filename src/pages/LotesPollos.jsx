@@ -5,9 +5,10 @@ const LotesPollos = () => {
   const [lotes, setLotes] = useState([]);
 
   const [formData, setFormData] = useState({
-    cantidad: "",
+    cantidadInicial: "",
     costoCompra: "",
     alimentoKg: "",
+    pesoPromedio: "",
     observaciones: "",
   });
 
@@ -31,21 +32,50 @@ const LotesPollos = () => {
   // 🔥 CREAR LOTE
   const crearLote = async () => {
     try {
+      const datos = {
+        cantidadInicial: Number(
+          formData.cantidadInicial
+        ),
+
+        cantidadActual: Number(
+          formData.cantidadInicial
+        ),
+
+        muertos: 0,
+
+        costoCompra: Number(
+          formData.costoCompra
+        ),
+
+        alimentoKg: Number(
+          formData.alimentoKg
+        ),
+
+        pesoPromedio: Number(
+          formData.pesoPromedio || 0
+        ),
+
+        observaciones:
+          formData.observaciones,
+      };
+
       const res = await axiosInstance.post(
         "/api/lotes-pollos",
-        formData
+        datos
       );
 
       setLotes([res.data, ...lotes]);
 
       setFormData({
-        cantidad: "",
+        cantidadInicial: "",
         costoCompra: "",
         alimentoKg: "",
+        pesoPromedio: "",
         observaciones: "",
       });
     } catch (error) {
       console.error(error);
+      alert("Error al guardar lote");
     }
   };
 
@@ -53,23 +83,25 @@ const LotesPollos = () => {
     <div style={{ padding: "20px" }}>
       <h1>🐔 Lotes de Pollos</h1>
 
-      {/* FORM */}
+      {/* FORMULARIO */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           gap: "10px",
-          maxWidth: "400px",
+          maxWidth: "500px",
+          marginBottom: "30px",
         }}
       >
         <input
           type="number"
-          placeholder="Cantidad"
-          value={formData.cantidad}
+          placeholder="Cantidad inicial de pollos"
+          value={formData.cantidadInicial}
           onChange={(e) =>
             setFormData({
               ...formData,
-              cantidad: e.target.value,
+              cantidadInicial:
+                e.target.value,
             })
           }
         />
@@ -81,19 +113,35 @@ const LotesPollos = () => {
           onChange={(e) =>
             setFormData({
               ...formData,
-              costoCompra: e.target.value,
+              costoCompra:
+                e.target.value,
             })
           }
         />
 
         <input
           type="number"
-          placeholder="Alimento KG"
+          placeholder="Alimento (KG)"
           value={formData.alimentoKg}
           onChange={(e) =>
             setFormData({
               ...formData,
-              alimentoKg: e.target.value,
+              alimentoKg:
+                e.target.value,
+            })
+          }
+        />
+
+        <input
+          type="number"
+          step="0.1"
+          placeholder="Peso promedio (KG)"
+          value={formData.pesoPromedio}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              pesoPromedio:
+                e.target.value,
             })
           }
         />
@@ -104,13 +152,14 @@ const LotesPollos = () => {
           onChange={(e) =>
             setFormData({
               ...formData,
-              observaciones: e.target.value,
+              observaciones:
+                e.target.value,
             })
           }
         />
 
         <button onClick={crearLote}>
-          Guardar lote
+          💾 Guardar lote
         </button>
       </div>
 
@@ -118,25 +167,67 @@ const LotesPollos = () => {
       <table
         style={{
           width: "100%",
-          marginTop: "30px",
+          borderCollapse:
+            "collapse",
         }}
       >
         <thead>
           <tr>
-            <th>Cantidad</th>
-            <th>Costo</th>
-            <th>Alimento</th>
-            <th>Estado</th>
+            <th>🐥 Inicial</th>
+            <th>🐔 Actual</th>
+            <th>☠️ Muertos</th>
+            <th>⚖️ Peso Promedio</th>
+            <th>🌽 Alimento</th>
+            <th>💰 Costo</th>
+            <th>📅 Fecha</th>
+            <th>📌 Estado</th>
           </tr>
         </thead>
 
         <tbody>
           {lotes.map((lote) => (
             <tr key={lote._id}>
-              <td>{lote.cantidad}</td>
-              <td>${lote.costoCompra}</td>
-              <td>{lote.alimentoKg} KG</td>
-              <td>{lote.estado}</td>
+              <td>
+                {
+                  lote.cantidadInicial
+                }
+              </td>
+
+              <td>
+                {
+                  lote.cantidadActual
+                }
+              </td>
+
+              <td>{lote.muertos}</td>
+
+              <td>
+                {
+                  lote.pesoPromedio
+                }{" "}
+                KG
+              </td>
+
+              <td>
+                {lote.alimentoKg} KG
+              </td>
+
+              <td>
+                $
+                {Number(
+                  lote.costoCompra
+                ).toFixed(2)}
+              </td>
+
+              <td>
+                {new Date(
+                  lote.fechaCompra
+                ).toLocaleDateString()}
+              </td>
+
+              <td>
+                {lote.estado}
+              </td>
             </tr>
           ))}
         </tbody>
