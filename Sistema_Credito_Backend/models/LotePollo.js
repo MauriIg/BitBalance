@@ -2,40 +2,24 @@ import mongoose from "mongoose";
 
 const lotePolloSchema = new mongoose.Schema(
   {
-    // 🐥 Pollitos comprados inicialmente
     cantidadInicial: {
       type: Number,
       required: true,
     },
 
-    // 🐔 Pollos vivos actualmente
     cantidadActual: {
       type: Number,
       required: true,
     },
 
-    // ☠️ Muertes acumuladas
     muertos: {
       type: Number,
       default: 0,
     },
 
-    // 💰 Costo de compra de los pollitos
     costoCompra: {
       type: Number,
       required: true,
-    },
-
-    // 🌽 Alimento consumido
-    alimentoKg: {
-      type: Number,
-      default: 0,
-    },
-
-    // ⚖️ Peso promedio actual por pollo
-    pesoPromedio: {
-      type: Number,
-      default: 0,
     },
 
     observaciones: {
@@ -63,9 +47,7 @@ const lotePolloSchema = new mongoose.Schema(
   }
 );
 
-const LotePollo = mongoose.model(
+export default mongoose.model(
   "LotePollo",
   lotePolloSchema
 );
-
-export default LotePollo;

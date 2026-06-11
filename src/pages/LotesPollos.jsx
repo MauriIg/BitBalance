@@ -7,19 +7,18 @@ const LotesPollos = () => {
   const [formData, setFormData] = useState({
     cantidadInicial: "",
     costoCompra: "",
-    alimentoKg: "",
-    pesoPromedio: "",
     observaciones: "",
   });
 
-  // 🔥 OBTENER LOTES
   useEffect(() => {
     obtenerLotes();
   }, []);
 
   const obtenerLotes = async () => {
     try {
-      const res = await axiosInstance.get("/api/lotes-pollos");
+      const res = await axiosInstance.get(
+        "/api/lotes-pollos"
+      );
 
       setLotes(res.data);
     } catch (error) {
@@ -27,7 +26,6 @@ const LotesPollos = () => {
     }
   };
 
-  // 🔥 CREAR LOTE
   const crearLote = async () => {
     try {
       const datos = {
@@ -45,14 +43,6 @@ const LotesPollos = () => {
           formData.costoCompra
         ),
 
-        alimentoKg: Number(
-          formData.alimentoKg
-        ),
-
-        pesoPromedio: Number(
-          formData.pesoPromedio || 0
-        ),
-
         observaciones:
           formData.observaciones,
       };
@@ -67,13 +57,34 @@ const LotesPollos = () => {
       setFormData({
         cantidadInicial: "",
         costoCompra: "",
-        alimentoKg: "",
-        pesoPromedio: "",
         observaciones: "",
       });
     } catch (error) {
       console.error(error);
       alert("Error al guardar lote");
+    }
+  };
+
+  const registrarMuerte = async (
+    id
+  ) => {
+    const confirmar = window.confirm(
+      "¿Registrar un pollo muerto?"
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await axiosInstance.put(
+        `/api/lotes-pollos/${id}/muerte`
+      );
+
+      obtenerLotes();
+    } catch (error) {
+      console.error(error);
+      alert(
+        "Error registrando mortalidad"
+      );
     }
   };
 
@@ -93,7 +104,7 @@ const LotesPollos = () => {
       >
         <input
           type="number"
-          placeholder="Cantidad inicial de pollos"
+          placeholder="Cantidad de pollitos"
           value={formData.cantidadInicial}
           onChange={(e) =>
             setFormData({
@@ -106,39 +117,12 @@ const LotesPollos = () => {
 
         <input
           type="number"
-          placeholder="Costo compra"
+          placeholder="Costo total compra"
           value={formData.costoCompra}
           onChange={(e) =>
             setFormData({
               ...formData,
               costoCompra:
-                e.target.value,
-            })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Alimento (KG)"
-          value={formData.alimentoKg}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              alimentoKg:
-                e.target.value,
-            })
-          }
-        />
-
-        <input
-          type="number"
-          step="0.1"
-          placeholder="Peso promedio (KG)"
-          value={formData.pesoPromedio}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              pesoPromedio:
                 e.target.value,
             })
           }
@@ -172,13 +156,12 @@ const LotesPollos = () => {
         <thead>
           <tr>
             <th>🐥 Inicial</th>
-            <th>🐔 Actual</th>
+            <th>🐔 Vivos</th>
             <th>☠️ Muertos</th>
-            <th>⚖️ Peso Promedio</th>
-            <th>🌽 Alimento</th>
-            <th>💰 Costo</th>
+            <th>💰 Compra</th>
             <th>📅 Fecha</th>
             <th>📌 Estado</th>
+            <th>⚙️ Acciones</th>
           </tr>
         </thead>
 
@@ -197,17 +180,8 @@ const LotesPollos = () => {
                 }
               </td>
 
-              <td>{lote.muertos}</td>
-
               <td>
-                {
-                  lote.pesoPromedio
-                }{" "}
-                KG
-              </td>
-
-              <td>
-                {lote.alimentoKg} KG
+                {lote.muertos}
               </td>
 
               <td>
@@ -225,6 +199,30 @@ const LotesPollos = () => {
 
               <td>
                 {lote.estado}
+              </td>
+
+              <td>
+                <button
+                  onClick={() =>
+                    registrarMuerte(
+                      lote._id
+                    )
+                  }
+                  style={{
+                    background:
+                      "#dc3545",
+                    color: "white",
+                    border: "none",
+                    borderRadius:
+                      "6px",
+                    padding:
+                      "6px 10px",
+                    cursor:
+                      "pointer",
+                  }}
+                >
+                  ☠️ +1 Muerto
+                </button>
               </td>
             </tr>
           ))}

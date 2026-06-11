@@ -34,4 +34,42 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ☠️ Registrar muerte
+router.put("/:id/muerte", async (req, res) => {
+  try {
+    const lote = await LotePollo.findById(
+      req.params.id
+    );
+
+    if (!lote) {
+      return res
+        .status(404)
+        .json({
+          message: "Lote no encontrado",
+        });
+    }
+
+    if (lote.cantidadActual <= 0) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "No quedan pollos vivos",
+        });
+    }
+
+    lote.cantidadActual -= 1;
+    lote.muertos += 1;
+
+    await lote.save();
+
+    res.json(lote);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+
 export default router;
