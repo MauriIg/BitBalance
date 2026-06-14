@@ -7,10 +7,8 @@ const PartesPollo = () => {
   const [formData, setFormData] = useState({
     nombre: "",
     precioKg: "",
-    descripcion: "",
   });
 
-  // 🔥 OBTENER
   useEffect(() => {
     obtenerPartes();
   }, []);
@@ -27,42 +25,78 @@ const PartesPollo = () => {
     }
   };
 
-  // 🔥 CREAR
   const crearParte = async () => {
+    if (
+      !formData.nombre ||
+      !formData.precioKg
+    ) {
+      return alert(
+        "Completa todos los campos"
+      );
+    }
+
     try {
+      const datos = {
+        nombre: formData.nombre,
+        precioKg: Number(
+          formData.precioKg
+        ),
+      };
+
       const res = await axiosInstance.post(
         "/api/partes-pollo",
-        formData
+        datos
       );
 
-      setPartes([res.data, ...partes]);
+      setPartes([
+        res.data,
+        ...partes,
+      ]);
 
       setFormData({
         nombre: "",
         precioKg: "",
-        descripcion: "",
       });
     } catch (error) {
       console.error(error);
+      alert(
+        "Error al guardar parte"
+      );
     }
+  };
+
+  const thStyle = {
+    padding: "12px",
+    border: "1px solid #ddd",
+    textAlign: "center",
+    background: "#343a40",
+    color: "white",
+  };
+
+  const tdStyle = {
+    padding: "12px",
+    border: "1px solid #ddd",
+    textAlign: "center",
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>🍗 Partes del Pollo</h1>
+      <h1>
+        🍗 Catálogo de Partes
+      </h1>
 
-      {/* FORM */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           gap: "10px",
           maxWidth: "400px",
+          marginBottom: "30px",
         }}
       >
         <input
           type="text"
-          placeholder="Nombre"
+          placeholder="Nombre de la parte"
           value={formData.nombre}
           onChange={(e) =>
             setFormData({
@@ -84,43 +118,45 @@ const PartesPollo = () => {
           }
         />
 
-        <textarea
-          placeholder="Descripción"
-          value={formData.descripcion}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              descripcion: e.target.value,
-            })
-          }
-        />
-
-        <button onClick={crearParte}>
-          Guardar Parte
+        <button
+          onClick={crearParte}
+        >
+          💾 Guardar Parte
         </button>
       </div>
 
-      {/* TABLA */}
       <table
         style={{
           width: "100%",
-          marginTop: "30px",
+          borderCollapse:
+            "collapse",
         }}
       >
         <thead>
           <tr>
-            <th>Parte</th>
-            <th>Precio KG</th>
-            <th>Descripción</th>
+            <th style={thStyle}>
+              🍗 Parte
+            </th>
+
+            <th style={thStyle}>
+              💰 Precio por KG
+            </th>
           </tr>
         </thead>
 
         <tbody>
           {partes.map((p) => (
             <tr key={p._id}>
-              <td>{p.nombre}</td>
-              <td>${p.precioKg}</td>
-              <td>{p.descripcion}</td>
+              <td style={tdStyle}>
+                {p.nombre}
+              </td>
+
+              <td style={tdStyle}>
+                $
+                {Number(
+                  p.precioKg
+                ).toFixed(2)}
+              </td>
             </tr>
           ))}
         </tbody>
