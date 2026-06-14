@@ -260,7 +260,7 @@ const App = () => {
     <PrivateRoute
       allowedRoles={["admin"]}
     >
-      <GastosPollos />
+      <GastosAvicolas />
     </PrivateRoute>
   }
 />
