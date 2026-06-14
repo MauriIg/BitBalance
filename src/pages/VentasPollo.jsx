@@ -11,6 +11,7 @@ const VentasPollo = () => {
     pesoKg: "",
     importe: "",
     tipoVenta: "peso",
+    presentacion: "pieza",
   });
 
   useEffect(() => {
@@ -47,29 +48,38 @@ const VentasPollo = () => {
       (p) => p.nombre === nombre
     );
 
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       parte: nombre,
       precioKg: parte?.precioKg || 0,
-    });
+    }));
   };
 
+  // ⚖️ KG calculados
   const kgCalculados =
     formData.tipoVenta === "importe"
       ? Number(formData.importe || 0) /
         Number(formData.precioKg || 1)
       : Number(formData.pesoKg || 0);
 
+  // 💰 Total calculado
   const total =
     formData.tipoVenta === "peso"
       ? Number(formData.pesoKg || 0) *
-        Number(formData.precioKg)
+        Number(formData.precioKg || 0)
       : Number(formData.importe || 0);
 
   const guardarVenta = async () => {
     try {
+      if (!formData.parte) {
+        alert("Selecciona una parte");
+        return;
+      }
+
       const datos = {
         parte: formData.parte,
+        presentacion:
+          formData.presentacion,
         precioKg: Number(
           formData.precioKg
         ),
@@ -95,10 +105,13 @@ const VentasPollo = () => {
         pesoKg: "",
         importe: "",
         tipoVenta: "peso",
+        presentacion: "pieza",
       });
     } catch (error) {
       console.error(error);
-      alert("Error al guardar venta");
+      alert(
+        "Error al guardar la venta"
+      );
     }
   };
 
@@ -127,6 +140,7 @@ const VentasPollo = () => {
           marginBottom: "30px",
         }}
       >
+        {/* Parte */}
         <select
           value={formData.parte}
           onChange={(e) =>
@@ -149,8 +163,41 @@ const VentasPollo = () => {
           ))}
         </select>
 
+        {/* Presentación */}
         <select
-          value={formData.tipoVenta}
+          value={
+            formData.presentacion
+          }
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              presentacion:
+                e.target.value,
+            })
+          }
+        >
+          <option value="pieza">
+            🍖 Pieza
+          </option>
+
+          <option value="entero">
+            🐔 Pollo Entero
+          </option>
+
+          <option value="medio">
+            🍗 Medio Pollo
+          </option>
+
+          <option value="cuarto">
+            🍗 Cuarto de Pollo
+          </option>
+        </select>
+
+        {/* Tipo de venta */}
+        <select
+          value={
+            formData.tipoVenta
+          }
           onChange={(e) =>
             setFormData({
               ...formData,
@@ -170,6 +217,7 @@ const VentasPollo = () => {
           </option>
         </select>
 
+        {/* Peso o importe */}
         {formData.tipoVenta ===
         "peso" ? (
           <input
@@ -200,25 +248,29 @@ const VentasPollo = () => {
           />
         )}
 
+        {/* Precio */}
         <input
-          value={`$${formData.precioKg}`}
           disabled
+          value={`$${formData.precioKg} por KG`}
         />
 
         <h3>
           ⚖️ KG:
           {" "}
-          {kgCalculados.toFixed(3)}
+          {kgCalculados.toFixed(
+            3
+          )}
         </h3>
 
         <h2>
-          💰 Total:
-          $
+          💰 Total: $
           {total.toFixed(2)}
         </h2>
 
         <button
-          onClick={guardarVenta}
+          onClick={
+            guardarVenta
+          }
         >
           Guardar Venta
         </button>
@@ -251,6 +303,10 @@ const VentasPollo = () => {
             </th>
 
             <th style={thStyle}>
+              Presentación
+            </th>
+
+            <th style={thStyle}>
               KG
             </th>
 
@@ -265,6 +321,12 @@ const VentasPollo = () => {
             <tr key={v._id}>
               <td style={tdStyle}>
                 {v.parte}
+              </td>
+
+              <td style={tdStyle}>
+                {
+                  v.presentacion
+                }
               </td>
 
               <td style={tdStyle}>
