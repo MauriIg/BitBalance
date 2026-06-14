@@ -33,7 +33,7 @@ import Estadisticas from "./pages/Estadisticas";
 import LotesPollos from "./pages/LotesPollos";
 import PartesPollo from "./pages/PartesPollo";
 import Avicola from "./pages/Avicola";
-import GastosPollos from "./pages/GastosPollos";
+import GastosAvicolas from "./pages/GastosAvicolas";
 
 // 🛒 Redux carrito
 import {
