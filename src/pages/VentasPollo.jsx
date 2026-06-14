@@ -11,7 +11,6 @@ const VentasPollo = () => {
     pesoKg: "",
     importe: "",
     tipoVenta: "peso",
-    presentacion: "pieza",
   });
 
   useEffect(() => {
@@ -55,14 +54,12 @@ const VentasPollo = () => {
     }));
   };
 
-  // ⚖️ KG calculados
   const kgCalculados =
     formData.tipoVenta === "importe"
       ? Number(formData.importe || 0) /
         Number(formData.precioKg || 1)
       : Number(formData.pesoKg || 0);
 
-  // 💰 Total calculado
   const total =
     formData.tipoVenta === "peso"
       ? Number(formData.pesoKg || 0) *
@@ -78,8 +75,6 @@ const VentasPollo = () => {
 
       const datos = {
         parte: formData.parte,
-        presentacion:
-          formData.presentacion,
         precioKg: Number(
           formData.precioKg
         ),
@@ -105,7 +100,6 @@ const VentasPollo = () => {
         pesoKg: "",
         importe: "",
         tipoVenta: "peso",
-        presentacion: "pieza",
       });
     } catch (error) {
       console.error(error);
@@ -119,6 +113,8 @@ const VentasPollo = () => {
     padding: "12px",
     border: "1px solid #ddd",
     textAlign: "center",
+    background: "#343a40",
+    color: "white",
   };
 
   const tdStyle = {
@@ -140,7 +136,6 @@ const VentasPollo = () => {
           marginBottom: "30px",
         }}
       >
-        {/* Parte */}
         <select
           value={formData.parte}
           onChange={(e) =>
@@ -163,41 +158,8 @@ const VentasPollo = () => {
           ))}
         </select>
 
-        {/* Presentación */}
         <select
-          value={
-            formData.presentacion
-          }
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              presentacion:
-                e.target.value,
-            })
-          }
-        >
-          <option value="pieza">
-            🍖 Pieza
-          </option>
-
-          <option value="entero">
-            🐔 Pollo Entero
-          </option>
-
-          <option value="medio">
-            🍗 Medio Pollo
-          </option>
-
-          <option value="cuarto">
-            🍗 Cuarto de Pollo
-          </option>
-        </select>
-
-        {/* Tipo de venta */}
-        <select
-          value={
-            formData.tipoVenta
-          }
+          value={formData.tipoVenta}
           onChange={(e) =>
             setFormData({
               ...formData,
@@ -217,7 +179,6 @@ const VentasPollo = () => {
           </option>
         </select>
 
-        {/* Peso o importe */}
         {formData.tipoVenta ===
         "peso" ? (
           <input
@@ -248,7 +209,6 @@ const VentasPollo = () => {
           />
         )}
 
-        {/* Precio */}
         <input
           disabled
           value={`$${formData.precioKg} por KG`}
@@ -272,7 +232,7 @@ const VentasPollo = () => {
             guardarVenta
           }
         >
-          Guardar Venta
+          💾 Guardar Venta
         </button>
       </div>
 
@@ -287,31 +247,24 @@ const VentasPollo = () => {
           width: "100%",
           borderCollapse:
             "collapse",
-          marginTop: "20px",
         }}
       >
         <thead>
-          <tr
-            style={{
-              background:
-                "#343a40",
-              color: "white",
-            }}
-          >
+          <tr>
             <th style={thStyle}>
-              Parte
+              🍗 Parte
             </th>
 
             <th style={thStyle}>
-              Presentación
+              ⚖️ KG
             </th>
 
             <th style={thStyle}>
-              KG
+              💰 Precio KG
             </th>
 
             <th style={thStyle}>
-              Total
+              🧾 Total
             </th>
           </tr>
         </thead>
@@ -324,15 +277,16 @@ const VentasPollo = () => {
               </td>
 
               <td style={tdStyle}>
-                {
-                  v.presentacion
-                }
-              </td>
-
-              <td style={tdStyle}>
                 {Number(
                   v.pesoKg
                 ).toFixed(3)}
+              </td>
+
+              <td style={tdStyle}>
+                $
+                {Number(
+                  v.precioKg
+                ).toFixed(2)}
               </td>
 
               <td style={tdStyle}>
