@@ -15,6 +15,7 @@ import reinversionRoutes from "./routes/reinversionRoutes.js";
 import lotePolloRoutes from "./routes/lotePolloRoutes.js";
 import partePolloRoutes from "./routes/PartePolloRoutes.js";
 import gastoAvicolaRoutes from "./routes/gastoAvicolaRoutes.js";
+import ventaPolloRoutes from "./routes/ventaPolloRoutes.js";
 
 
 dotenv.config();
@@ -52,6 +53,7 @@ app.use("/api/reinversiones", reinversionRoutes);
 app.use("/api/lotes-pollos", lotePolloRoutes);
 app.use("/api/partes-pollo", partePolloRoutes);
 app.use("/api/gastos-avicolas",gastoAvicolaRoutes);
+app.use("/api/ventas-pollo",ventaPolloRoutes);
 
 
 

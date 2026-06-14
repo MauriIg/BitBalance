@@ -34,6 +34,7 @@ import LotesPollos from "./pages/LotesPollos";
 import PartesPollo from "./pages/PartesPollo";
 import Avicola from "./pages/Avicola";
 import GastosAvicolas from "./pages/GastosAvicolas";
+import VentasPollo from "./pages/VentasPollo";
 
 // 🛒 Redux carrito
 import {
@@ -264,6 +265,18 @@ const App = () => {
     </PrivateRoute>
   }
 />
+
+<Route
+  path="/avicola/ventas"
+  element={
+    <PrivateRoute
+      allowedRoles={["admin"]}
+    >
+      <VentasPollo />
+    </PrivateRoute>
+  }
+/>
+
         <Route
           path="/catalogo"
           element={<Catalogo />}
