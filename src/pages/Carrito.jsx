@@ -2,12 +2,14 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   quitarDelCarrito,
   cambiarCantidad,
   vaciarCarrito,
   cargarCarrito
 } from "../redux/slices/carritoSlice";
+
 import { crearOrden } from "../services/orderService";
 import { obtenerCarritoUsuario } from "../services/carritoService";
 import axiosInstance from "../services/axiosInstance";
@@ -28,18 +30,18 @@ const Carrito = () => {
   const [telefono, setTelefono] = useState("");
   const [comentarios, setComentarios] = useState("");
 
-  //CAMBIO DE BITBALANCE
   const total = carrito.reduce((acc, item) => {
-    const abonado = item.cantidad || 0;
-    return acc + abonado;
+    return acc + (item.cantidad || 0);
   }, 0);
 
   useEffect(() => {
     const fetchCarrito = async () => {
       if (!token) return;
+
       try {
         const carritoGuardado = await obtenerCarritoUsuario(token);
-        if (carritoGuardado && carritoGuardado.productos) {
+
+        if (carritoGuardado?.productos) {
           dispatch(cargarCarrito(carritoGuardado.productos));
         }
       } catch (error) {
@@ -60,30 +62,20 @@ const Carrito = () => {
       .filter(p => p._id)
       .map(p => ({
         producto: p._id,
-        abono: p.cantidad, //CAMBIO SOLO SE CORTO LA LINEA PROXIMA
-        
+        abono: p.cantidad,
       }));
 
-    let estadoInicial;
+    let estadoInicial =
+      tipoEntrega === "tienda"
+        ? metodoPago === "tarjeta"
+          ? ESTADOS_ORDEN.PAGADO
+          : ESTADOS_ORDEN.PENDIENTE_RECOGER
+        : metodoPago === "tarjeta"
+        ? ESTADOS_ORDEN.PAGADO
+        : ESTADOS_ORDEN.PENDIENTE_PAGO;
 
-    if (tipoEntrega === "tienda") {
-      if (metodoPago === "tarjeta") {
-        estadoInicial = ESTADOS_ORDEN.PAGADO;
-      } else {
-        estadoInicial = ESTADOS_ORDEN.PENDIENTE_RECOGER;
-      }
-    } else if (tipoEntrega === "domicilio") {
-      if (metodoPago === "tarjeta") {
-        estadoInicial = ESTADOS_ORDEN.PAGADO;
-      } else {
-        estadoInicial = ESTADOS_ORDEN.PENDIENTE_PAGO;
-      }
-    }
-
-    if (tipoEntrega === "domicilio") {
-      if (!direccion || !telefono) {
-        return alert("Debes completar la dirección y el teléfono para la entrega a domicilio.");
-      }
+    if (tipoEntrega === "domicilio" && (!direccion || !telefono)) {
+      return alert("Completa dirección y teléfono.");
     }
 
     try {
@@ -102,20 +94,18 @@ const Carrito = () => {
         token
       );
 
-      
-
       dispatch(vaciarCarrito());
-      alert("¡Pago Realizado con Exito!");
+      alert("Pago registrado con éxito");
       navigate("/products");
     } catch (error) {
       console.error(error);
-      alert("Error al realizar el registro");
+      alert("Error al registrar el pago");
     }
   };
 
   const handleStripeCheckout = async () => {
-    if (!usuario || !usuario._id) {
-      alert("Debes iniciar sesión para pagar con tarjeta.");
+    if (!usuario?._id) {
+      alert("Debes iniciar sesión para pagar.");
       return navigate("/login");
     }
 
@@ -136,135 +126,210 @@ const Carrito = () => {
           telefono: tipoEntrega === "domicilio" ? telefono : "",
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       window.location.href = res.data.url;
     } catch (err) {
-      console.error("Error al redirigir a Stripe:", err);
-      alert("Hubo un error al iniciar el pago.");
+      console.error("Stripe error:", err);
+      alert("Error al iniciar el pago");
     }
   };
-  
+
+  // 🔥 STYLES
+  const styles = {
+    container: {
+      maxWidth: "900px",
+      margin: "0 auto",
+      padding: "20px",
+      fontFamily: "Arial",
+    },
+    title: {
+      fontSize: "22px",
+      fontWeight: "bold",
+      marginBottom: "15px",
+    },
+    card: {
+      border: "1px solid #ddd",
+      borderRadius: "10px",
+      padding: "15px",
+      marginBottom: "12px",
+      display: "flex",
+      gap: "15px",
+      alignItems: "center",
+    },
+    img: {
+      width: "90px",
+      height: "90px",
+      objectFit: "cover",
+      borderRadius: "8px",
+    },
+    input: {
+      padding: "6px",
+      border: "1px solid #ccc",
+      borderRadius: "5px",
+      width: "80px",
+    },
+    button: {
+      padding: "8px 12px",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+      marginTop: "5px",
+    },
+    btnDanger: {
+      background: "#e74c3c",
+      color: "white",
+    },
+    btnPrimary: {
+      background: "#2ecc71",
+      color: "white",
+    },
+    section: {
+      marginTop: "20px",
+      padding: "10px",
+      borderTop: "1px solid #eee",
+    },
+  };
 
   return (
-    <div>
-      <h2>Registro de Pago Semanal</h2>
+    <div style={styles.container}>
+      <h2 style={styles.title}>🧾 Registro de Pago Semanal</h2>
+
       {carrito.length === 0 ? (
-        <p>La solicitud está vacía</p>
+        <p>El carrito está vacío</p>
       ) : (
         <>
           {carrito.map(item => {
             const producto = item.producto || item;
-            const precio = producto.precio || item.precio || 0;
-            const nombre = producto.nombre || item.nombre || "Sin nombre";
-            const imagen = producto.imagen || "";
 
             return (
-              <div key={producto._id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
-                {imagen && (
-                  <img
-                    src={imagen}
-                    alt={nombre}
-                    style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                  />
+              <div key={producto._id} style={styles.card}>
+                {producto.imagen && (
+                  <img src={producto.imagen} alt="" style={styles.img} />
                 )}
-                <h4>{nombre}</h4>
-                
-                <p>Deuda total: ${precio}</p>
 
-<p>
-  Abono:{" "}
-  <input
-    type="number"
-    value={item.cantidad}
-    onChange={e =>
-      dispatch(
-        cambiarCantidad({
-          id: producto._id,
-          cantidad: Number(e.target.value),
-        })
-      )
-    }
-  />
-</p>
+                <div style={{ flex: 1 }}>
+                  <h4>{producto.nombre || "Sin nombre"}</h4>
+                  <p>Deuda: ${producto.precio || 0}</p>
 
+                  <label>
+                    Abono:{" "}
+                    <input
+                      type="number"
+                      style={styles.input}
+                      value={item.cantidad}
+                      onChange={e =>
+                        dispatch(
+                          cambiarCantidad({
+                            id: producto._id,
+                            cantidad: Number(e.target.value),
+                          })
+                        )
+                      }
+                    />
+                  </label>
 
-                <button onClick={() => dispatch(quitarDelCarrito(producto._id))}>
-                  Eliminar
-                </button>
+                  <br />
+
+                  <button
+                    style={{ ...styles.button, ...styles.btnDanger }}
+                    onClick={() => dispatch(quitarDelCarrito(producto._id))}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
             );
           })}
 
-          <div>
-            <h4>Dirección de cobro</h4>
-            <select value={tipoEntrega} onChange={(e) => setTipoEntrega(e.target.value)}>
+          {/* ENTREGA */}
+          <div style={styles.section}>
+            <h4>📍 Tipo de entrega</h4>
+
+            <select
+              value={tipoEntrega}
+              onChange={e => setTipoEntrega(e.target.value)}
+            >
               <option value="tienda">Domicilio Fijado</option>
               <option value="domicilio">Otra dirección</option>
             </select>
 
             {tipoEntrega === "domicilio" && (
-              <>
+              <div>
                 <input
-                  type="text"
-                  placeholder="Dirección de cobro"
+                  placeholder="Dirección"
                   value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
-                  required
+                  onChange={e => setDireccion(e.target.value)}
                 />
                 <input
-                  type="text"
-                  placeholder="Referencias (opcional)"
+                  placeholder="Referencias"
                   value={referencias}
-                  onChange={(e) => setReferencias(e.target.value)}
+                  onChange={e => setReferencias(e.target.value)}
                 />
                 <input
-                  type="text"
-                  placeholder="Motivo"
+                  placeholder="Teléfono"
                   value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
-                  required
+                  onChange={e => setTelefono(e.target.value)}
                 />
-              </>
+              </div>
             )}
           </div>
 
-          <div>
-            <h4>Método de pago</h4>
-            <select value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)}>
+          {/* PAGO */}
+          <div style={styles.section}>
+            <h4>💳 Método de pago</h4>
+
+            <select
+              value={metodoPago}
+              onChange={e => setMetodoPago(e.target.value)}
+            >
               <option value="efectivo">Efectivo</option>
               <option value="transferencia">Transferencia</option>
-              
+              <option value="tarjeta">Tarjeta</option>
             </select>
           </div>
 
-          <textarea
-  placeholder="Agregar comentarios (ej: Observaciones, complicaciones, sugerencias, queja...)"
-  value={comentarios}
-  onChange={(e) => setComentarios(e.target.value)}
-  style={{
-    width: "100%",
-    maxWidth: "400px",
-    height: "80px",
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-    marginTop: "10px"
-  }}
-/>
+          {/* COMENTARIOS */}
+          <div style={styles.section}>
+            <textarea
+              placeholder="Comentarios..."
+              value={comentarios}
+              onChange={e => setComentarios(e.target.value)}
+              style={{
+                width: "100%",
+                height: "80px",
+                padding: "10px",
+              }}
+            />
+          </div>
 
-          <h3>Se realizó un abono de : ${total.toFixed(2)}</h3>
-          <button onClick={() => dispatch(vaciarCarrito())}>Limpiar Solicitud</button>
+          <h3>💰 Total abono: ${total.toFixed(2)}</h3>
+
+          <button
+            style={{ ...styles.button, background: "#555", color: "white" }}
+            onClick={() => dispatch(vaciarCarrito())}
+          >
+            Limpiar carrito
+          </button>
+
           <br /><br />
-          {metodoPago !== "tarjeta" && (
-            <button onClick={handleFinalizarCompra}>Registrar Pago</button>
-          )}
-          {metodoPago === "tarjeta" && (
-            <button onClick={handleStripeCheckout}>ATAJO NO ESTABLECIDO</button>
+
+          {metodoPago !== "tarjeta" ? (
+            <button
+              style={{ ...styles.button, ...styles.btnPrimary }}
+              onClick={handleFinalizarCompra}
+            >
+              Registrar pago
+            </button>
+          ) : (
+            <button
+              style={{ ...styles.button, background: "#3498db", color: "white" }}
+              onClick={handleStripeCheckout}
+            >
+              Pagar con tarjeta
+            </button>
           )}
         </>
       )}
