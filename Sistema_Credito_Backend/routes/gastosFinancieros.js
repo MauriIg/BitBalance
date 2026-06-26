@@ -1,5 +1,5 @@
 import express from "express";
-import GastoFinanciero from "../models/GastoFinanciero.js";
+import GastoFinanciero from "../models/Gasto.js";
 
 const router = express.Router();
 
