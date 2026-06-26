@@ -17,17 +17,7 @@ const Products = () => {
     dispatch(getProducts());
   }, [dispatch]);
 
-  const eliminarProducto = async (id) => {
-    if (confirm("¿Estás seguro de eliminar este producto?")) {
-      try {
-        await axiosInstance.delete(`/api/products/${id}`);
-        dispatch(getProducts());
-      } catch (error) {
-        console.error(error);
-        alert("Error al eliminar producto");
-      }
-    }
-  };
+
 
   const alternarVisible = async (id, visible) => {
     try {
@@ -266,8 +256,6 @@ const Products = () => {
   💸+
 </button>
 <button onClick={() => navigate(`/edit-product/${p._id}`)}>✏️</button>
-<button onClick={() => eliminarProducto(p._id)}>🗑️</button>
-
 
      </td>
 

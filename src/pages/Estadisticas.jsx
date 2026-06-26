@@ -22,6 +22,14 @@ const Estadisticas = () => {
   const [montoReinversion, setMontoReinversion] =
     useState("");
 
+  const [gastos, setGastos] = useState([]);
+
+const [nuevoGasto, setNuevoGasto] =
+  useState({
+    concepto: "",
+    monto: "",
+    categoria: "otro",
+  });
   const [loading, setLoading] = useState(true);
 
   // 🔥 OBTENER DATOS
@@ -59,6 +67,22 @@ const Estadisticas = () => {
         );
   
         setReinversiones([]);
+      }
+
+      try {
+        const gastosRes =
+          await axiosInstance.get(
+            "/api/gastos-financieros"
+          );
+      
+        setGastos(gastosRes.data || []);
+      } catch (error) {
+        console.error(
+          "Error obteniendo gastos:",
+          error
+        );
+      
+        setGastos([]);
       }
   
       setLoading(false);
@@ -105,23 +129,30 @@ const Estadisticas = () => {
     }, 0);
 
   // 📈 CAPITAL TOTAL TRABAJANDO
-  const capitalTrabajando =
-    inversionInicial - totalReinvertido;
+const capitalTrabajando =
+inversionInicial - totalReinvertido;
 
-  // 💰 PATRIMONIO
-  const patrimonio =
-    totalRecaudado + deudaTotal;
+// 💰 PATRIMONIO
+const patrimonio =
+totalRecaudado + deudaTotal;
 
-  // 🔥 GANANCIA REAL
-  const gananciaReal =
-    patrimonio - capitalTrabajando;
+// 🔥 GANANCIA BRUTA
+const gananciaReal =
+patrimonio - capitalTrabajando;
 
-  // 💵 DINERO DISPONIBLE
-  const dineroDisponible =
-    totalRecaudado - totalReinvertido;
+// 💸 TOTAL GASTOS
+const totalGastos =
+gastos.reduce((acc, g) => {
+  return acc + Number(g.monto || 0);
+}, 0);
 
+// 🔥 GANANCIA NETA
+const gananciaNeta =
+gananciaReal - totalGastos;
 
-
+// 💵 DINERO DISPONIBLE
+const dineroDisponible =
+totalRecaudado - totalReinvertido;
   // 📊 DATA GRÁFICA
   const data = [
     {
@@ -136,14 +167,18 @@ const Estadisticas = () => {
       name: "Pendiente",
       value: deudaTotal,
     },
+    {
+      name: "Gastos",
+      value: totalGastos,
+    },
   ];
 
   const COLORS = [
     "#0088FE",
     "#00C49F",
     "#FF8042",
+    "#FF0000",
   ];
-
   // 🔥 AGREGAR REINVERSIÓN
   const agregarReinversion = async () => {
     if (
@@ -173,6 +208,45 @@ const Estadisticas = () => {
         "Error al guardar reinversión:",
         error
       );
+    }
+  };
+
+
+  const agregarGasto = async () => {
+    if (
+      !nuevoGasto.concepto ||
+      !nuevoGasto.monto
+    ) {
+      return;
+    }
+  
+    try {
+      const res =
+        await axiosInstance.post(
+          "/api/gastos-financieros",
+          {
+            concepto:
+              nuevoGasto.concepto,
+            monto: Number(
+              nuevoGasto.monto
+            ),
+            categoria:
+              nuevoGasto.categoria,
+          }
+        );
+  
+      setGastos([
+        res.data,
+        ...gastos,
+      ]);
+  
+      setNuevoGasto({
+        concepto: "",
+        monto: "",
+        categoria: "otro",
+      });
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -226,6 +300,75 @@ const Estadisticas = () => {
         </button>
       </div>
 
+      <hr
+  style={{
+    margin: "30px 0",
+  }}
+/>
+
+
+<h3>💸 Registrar gasto</h3>
+
+<input
+  type="text"
+  placeholder="Concepto"
+  value={nuevoGasto.concepto}
+  onChange={(e) =>
+    setNuevoGasto({
+      ...nuevoGasto,
+      concepto: e.target.value,
+    })
+  }
+/>
+
+<select
+  value={nuevoGasto.categoria}
+  onChange={(e) =>
+    setNuevoGasto({
+      ...nuevoGasto,
+      categoria: e.target.value,
+    })
+  }
+>
+  <option value="otro">
+    Otro
+  </option>
+
+  <option value="combustible">
+    Combustible
+  </option>
+
+  <option value="papeleria">
+    Papelería
+  </option>
+
+  <option value="transporte">
+    Transporte
+  </option>
+
+  <option value="internet">
+    Internet
+  </option>
+</select>
+
+<input
+  type="number"
+  placeholder="Monto"
+  value={nuevoGasto.monto}
+  onChange={(e) =>
+    setNuevoGasto({
+      ...nuevoGasto,
+      monto: e.target.value,
+    })
+  }
+/>
+
+<button
+  onClick={agregarGasto}
+>
+  Guardar gasto
+</button>
+
       {/* 🔥 CARDS */}
       <div
         style={{
@@ -278,22 +421,38 @@ const Estadisticas = () => {
         </div>
 
         <div style={cardStyle}>
-          <h3>🔥 Ganancia Real</h3>
+  <h3>💸 Gastos</h3>
+
+  <p>
+    $
+    {totalGastos.toFixed(2)}
+  </p>
+</div>
+
+        <div style={cardStyle}>
+          <h3>🔥 Ganancia Neta</h3>
 
           <p
             style={{
               color:
-                gananciaReal >= 0
+                gananciaNeta >= 0
                   ? "green"
                   : "red",
 
               fontWeight: "bold",
             }}
           >
-            ${gananciaReal.toFixed(2)}
+            ${gananciaNeta.toFixed(2)}
           </p>
         </div>
 
+        <div style={cardStyle}>
+  <h3>📈 Ganancia Bruta</h3>
+
+  <p>
+    ${gananciaReal.toFixed(2)}
+  </p>
+</div>
         
       </div>
 
@@ -373,6 +532,30 @@ const Estadisticas = () => {
           </ul>
         )}
       </div>
+
+      <div style={{ marginTop: "40px" }}>
+  <h2>
+    💸 Historial de Gastos
+  </h2>
+
+  {gastos.length === 0 ? (
+    <p>No hay gastos.</p>
+  ) : (
+    <ul>
+      {gastos.map((g) => (
+        <li key={g._id}>
+          {g.concepto}
+          {" - "}
+          {g.categoria}
+          {" - $"}
+          {Number(g.monto).toFixed(
+            2
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
     </div>
   );
 };
