@@ -225,7 +225,7 @@ const EstadisticasAvicola = () => {
 
         <div style={cardStyle}>
           <h3>
-            💰 Compra
+            💰 Inversión
           </h3>
 
           <p>
