@@ -152,7 +152,7 @@ gananciaReal - totalGastos;
 
 // 💵 DINERO DISPONIBLE
 const dineroDisponible =
-totalRecaudado - totalReinvertido;
+totalRecaudado - totalReinvertido-totalGastos;
   // 📊 DATA GRÁFICA
   const data = [
     {
